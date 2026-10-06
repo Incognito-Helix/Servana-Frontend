@@ -6,10 +6,13 @@ import Stub from "@/pages/Stub"
 import NotFound from "@/pages/NotFound"
 import Forbidden from "@/pages/Forbidden"
 import { RequireRole } from "./guards"
+import DevUI from "@/pages/DevUI"
 
 const s = (title) => <Stub title={title} />
 
 export const router = createBrowserRouter([
+  { path: "/dev/ui", element: <DevUI /> },
+
   {
     element: <PublicLayout />,
     children: [
