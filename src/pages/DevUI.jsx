@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select"
+import OverlayDemo from "./OverlayDemo"
 
 const badges = [
   ["verified", "Verified"],
@@ -87,6 +88,7 @@ export default function DevUI() {
           </CardContent>
         </Card>
       </Section>
+      <OverlayDemo />
     </main>
   )
 }
