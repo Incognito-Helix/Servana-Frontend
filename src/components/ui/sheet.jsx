@@ -3,6 +3,7 @@ import { Dialog as SheetPrimitive } from "radix-ui"
 
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
+import { forwardRef } from "react"
 
 function Sheet({ ...props }) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
@@ -20,9 +21,10 @@ function SheetPortal({ ...props }) {
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />
 }
 
-function SheetOverlay({ className, ...props }) {
+const SheetOverlay = forwardRef(function SheetOverlay({ className, ...props }, ref) {
   return (
     <SheetPrimitive.Overlay
+      ref={ref}
       data-slot="sheet-overlay"
       className={cn(
         "fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
@@ -31,7 +33,7 @@ function SheetOverlay({ className, ...props }) {
       {...props}
     />
   )
-}
+})
 
 function SheetContent({ className, children, side = "right", showCloseButton = true, ...props }) {
   return (

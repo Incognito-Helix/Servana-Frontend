@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Overlay } from "@/components/ui/overlay"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Toaster } from "@/components/ui/sonner"
+import { EmptyState } from "@/components/ui/empty-state"
+import { ErrorState } from "@/components/ui/error-state"
 
 export default function OverlayDemo() {
   const [open, setOpen] = useState(false)
@@ -33,6 +35,16 @@ export default function OverlayDemo() {
         ) : (
           <p>Ada Beauty Studio, Lekki, Lagos</p>
         )}
+      </div>
+
+      <div className="mt-6 grid w-full max-w-sm gap-4">
+        <EmptyState
+          title="No providers found"
+          message="Try a different area or category."
+          actionLabel="Clear filters"
+          onAction={() => toast("Filters cleared")}
+        />
+        <ErrorState onRetry={() => toast.success("Retrying...")} />
       </div>
 
       <Overlay
