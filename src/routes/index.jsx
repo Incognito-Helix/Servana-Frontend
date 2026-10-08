@@ -7,7 +7,7 @@ import NotFound from "@/pages/NotFound"
 import Forbidden from "@/pages/Forbidden"
 import { RequireRole } from "./guards"
 import DevUI from "@/pages/DevUI"
-
+import SignupPage from "@/features/auth/SignupPage"
 const s = (title) => <Stub title={title} />
 
 export const router = createBrowserRouter([
@@ -20,7 +20,8 @@ export const router = createBrowserRouter([
       { path: "/search", element: s("Search") },
       { path: "/p/:slug", element: s("Public vendor profile") },
       { path: "/login", element: s("Log in") },
-      { path: "/signup", element: s("Sign up") },
+      { path: "/signup", element: <SignupPage /> },
+      { path: "/vendor-policy", element: s("Vendor Policy and Guidelines") },
       { path: "/verify-email", element: s("Verify email") },
       { path: "/forgot-password", element: s("Forgot password") },
       { path: "/reset-password", element: s("Reset password") },
