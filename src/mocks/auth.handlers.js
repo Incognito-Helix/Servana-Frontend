@@ -6,7 +6,7 @@ const SESSION_KEY = "servana_mock_session"
 const MAX_FAILED_LOGINS = 5
 
 // Test accounts. Password for all: Password1!
-const users = [
+export const users = [
   {
     id: "u_customer",
     name: "Ada Okafor",
@@ -39,7 +39,7 @@ const users = [
 ]
 
 const failedLogins = new Map()
-const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role })
+export const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role })
 
 const getSessionUser = () => {
   try {
@@ -50,7 +50,7 @@ const getSessionUser = () => {
   }
 }
 
-const setSession = (id) => {
+export const setSession = (id) => {
   try {
     if (id) sessionStorage.setItem(SESSION_KEY, id)
     else sessionStorage.removeItem(SESSION_KEY)
