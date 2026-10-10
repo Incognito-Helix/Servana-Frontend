@@ -19,12 +19,20 @@ setNetworkErrorHandler(() => {
   console.warn("Network error: show retry toast")
 })
 
-createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthBootstrap>
-        <RouterProvider router={router} future={{ v7_startTransition: true }} />
-      </AuthBootstrap>
-    </QueryClientProvider>
-  </StrictMode>,
-)
+async function enableMocking() {
+  if (import.meta.env.VITE_USE_MOCKS !== "true") return
+  const { worker } = await import("@/mocks/browser")
+  await worker.start({ onUnhandledRequest: "bypass" })
+}
+
+enableMocking().then(() => {
+  createRoot(document.getElementById("root")).render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <AuthBootstrap>
+          <RouterProvider router={router} future={{ v7_startTransition: true }} />
+        </AuthBootstrap>
+      </QueryClientProvider>
+    </StrictMode>,
+  )
+})
