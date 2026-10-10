@@ -41,7 +41,7 @@ export const users = [
 const failedLogins = new Map()
 export const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role })
 
-const getSessionUser = () => {
+export const getSessionUser = () => {
   try {
     const id = sessionStorage.getItem(SESSION_KEY)
     return users.find((u) => u.id === id) ?? null
