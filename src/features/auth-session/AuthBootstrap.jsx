@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { api, unwrap } from "@/lib/api"
+import { getToken } from "@/lib/token"
 import { useAuthStore } from "@/store/authStore"
 
 export default function AuthBootstrap({ children }) {
@@ -11,6 +12,12 @@ export default function AuthBootstrap({ children }) {
     const devRole = import.meta.env.DEV && import.meta.env.VITE_DEV_ROLE
     if (devRole) {
       setUser({ role: devRole })
+      return
+    }
+
+    // No saved token means nobody is logged in, so skip the request.
+    if (!getToken()) {
+      clearUser()
       return
     }
 
