@@ -40,6 +40,7 @@ export const users = [
 
 const failedLogins = new Map()
 export const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, role: u.role })
+export const withToken = (u) => ({ ...publicUser(u), token: `mock-token-${u.id}` })
 
 export const getSessionUser = () => {
   try {
@@ -86,13 +87,16 @@ export const authHandlers = [
 
     failedLogins.delete(key)
     setSession(user.id)
-    return ok(publicUser(user))
+    return ok(withToken(user))
   }),
 
-  http.get(`${API}/auth/me`, async () => {
+  http.get(`${API}/auth/me`, async ({ request }) => {
     await delay(200)
-    const user = getSessionUser()
-    return user ? ok(publicUser(user)) : fail(401, "UNAUTHORIZED", "Log in")
+    const auth = request.headers.get("Authorization") || ""
+    const user = auth.startsWith("Bearer mock-token-")
+      ? users.find((u) => u.id === auth.replace("Bearer mock-token-", ""))
+      : getSessionUser()
+    return user ? ok(withToken(user)) : fail(401, "UNAUTHORIZED", "Log in")
   }),
 
   http.post(`${API}/auth/logout`, async () => {
@@ -111,7 +115,7 @@ export const authHandlers = [
     if (credential.includes("existing")) {
       const user = users[0]
       setSession(user.id)
-      return ok(publicUser(user))
+      return ok(withToken(user))
     }
     if (!role || acceptedTerms !== true) {
       return ok({
@@ -132,6 +136,6 @@ export const authHandlers = [
     }
     users.push(user)
     setSession(user.id)
-    return ok(publicUser(user), 201)
+    return ok(withToken(user), 201)
   }),
 ]

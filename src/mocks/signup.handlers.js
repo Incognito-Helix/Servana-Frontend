@@ -1,6 +1,6 @@
 import { http, delay } from "msw"
 import { ok, fail } from "./respond"
-import { users, publicUser, setSession } from "./auth.handlers"
+import { users, setSession, withToken } from "./auth.handlers"
 
 const API = import.meta.env.VITE_API_URL
 const VALID_OTP = "123456"
@@ -64,7 +64,7 @@ export const signupHandlers = [
     wrongAttempts.delete(email)
     users.push(user)
     setSession(user.id)
-    return ok(publicUser(user))
+    return ok(withToken(user))
   }),
 
   http.post(`${API}/auth/resend-otp`, async ({ request }) => {
