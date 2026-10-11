@@ -3,7 +3,11 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { ApiError } from "@/lib/api"
 
 export function useZodForm(schema, options = {}) {
-  return useForm({ resolver: zodResolver(schema), mode: "onTouched", ...options })
+  return useForm({
+    resolver: zodResolver(schema),
+    mode: "onTouched",
+    ...options,
+  })
 }
 
 // Puts the server's fieldErrors on the matching inputs.
@@ -16,10 +20,21 @@ export function applyApiErrors(error, setError) {
     })
     return
   }
+
   const entries = Object.entries(error.fieldErrors ?? {})
+
   if (entries.length === 0) {
-    setError("root.serverError", { type: "server", message: error.message })
+    setError("root.serverError", {
+      type: "server",
+      message: error.message || "Something went wrong. Please try again.",
+    })
     return
   }
-  entries.forEach(([name, message]) => setError(name, { type: "server", message: String(message) }))
+
+  entries.forEach(([name, message]) => {
+    setError(name, {
+      type: "server",
+      message: String(message),
+    })
+  })
 }
