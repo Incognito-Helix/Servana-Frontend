@@ -9,6 +9,8 @@ import { RequireRole } from "./guards"
 import DevUI from "@/pages/DevUI"
 import SignupPage from "@/features/auth/SignupPage"
 import VerifyEmailPage from "@/features/auth/VerifyEmailPage"
+import LoginPage from "@/features/auth/LoginPage"
+
 const s = (title) => <Stub title={title} />
 
 export const router = createBrowserRouter([
@@ -20,7 +22,7 @@ export const router = createBrowserRouter([
       { path: "/", element: s("Home (For you feed)") },
       { path: "/search", element: s("Search") },
       { path: "/p/:slug", element: s("Public vendor profile") },
-      { path: "/login", element: s("Log in") },
+      { path: "/login", element: <LoginPage /> },
       { path: "/signup", element: <SignupPage /> },
       { path: "/vendor-policy", element: s("Vendor Policy and Guidelines") },
       { path: "/verify-email", element: <VerifyEmailPage /> },
