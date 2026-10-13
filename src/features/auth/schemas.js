@@ -17,18 +17,19 @@ const name = (label) =>
     .max(50, `${label} must be at most 50 characters`)
 
 const mustBeTrue = (message) => z.boolean().refine((v) => v === true, { message })
+export const passwordSchema = z
+  .string()
+  .min(8, "Password must be at least 8 characters")
+  .regex(/[A-Z]/, "Password needs one uppercase letter")
+  .regex(/[0-9]/, "Password needs one number")
+  .regex(/[^A-Za-z0-9]/, "Password needs one special character")
 
 const base = z.object({
   role: z.enum(["customer", "vendor"]), // admin is rejected here
   firstName: name("First name"),
   lastName: name("Last name"),
   email: z.string().trim().toLowerCase().email("Enter a valid email address"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password needs one uppercase letter")
-    .regex(/[0-9]/, "Password needs one number")
-    .regex(/[^A-Za-z0-9]/, "Password needs one special character"),
+  password: passwordSchema,
   confirmPassword: z.string().min(1, "Confirm your password"),
   acceptedTerms: mustBeTrue("You must agree to the Terms of Service and Privacy Policy"),
 })

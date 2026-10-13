@@ -10,6 +10,9 @@ import DevUI from "@/pages/DevUI"
 import SignupPage from "@/features/auth/SignupPage"
 import VerifyEmailPage from "@/features/auth/VerifyEmailPage"
 import LoginPage from "@/features/auth/LoginPage"
+import ForgotPasswordPage from "@/features/auth/ForgotPasswordPage"
+import ResetPasswordPage from "@/features/auth/ResetPasswordPage"
+import ChangePasswordPage from "@/features/auth/ChangePasswordPage"
 
 const s = (title) => <Stub title={title} />
 
@@ -26,8 +29,9 @@ export const router = createBrowserRouter([
       { path: "/signup", element: <SignupPage /> },
       { path: "/vendor-policy", element: s("Vendor Policy and Guidelines") },
       { path: "/verify-email", element: <VerifyEmailPage /> },
-      { path: "/forgot-password", element: s("Forgot password") },
-      { path: "/reset-password", element: s("Reset password") },
+      { path: "/forgot-password", element: <ForgotPasswordPage /> },
+      { path: "/reset-password", element: <ResetPasswordPage /> },
+      { path: "/account/security", element: <ChangePasswordPage /> },
       { path: "/hire-response", element: s("Did you hire this vendor?") },
       { path: "/terms", element: s("Terms of Service") },
       { path: "/privacy", element: s("Privacy Policy") },
