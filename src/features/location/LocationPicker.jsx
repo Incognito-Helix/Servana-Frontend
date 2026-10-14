@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { api } from "@/lib/api"
 import { useAuthStore } from "@/store/authStore"
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import PickerOverlay from "./PickerOverlay"
+import UseMyLocation from "./UseMyLocation"
 import { useDebounce } from "./useDebounce"
 import { useZoneSuggestions } from "./useZoneSuggestions"
 import { useRecentLocations } from "./useRecentLocation"
@@ -36,15 +37,24 @@ function ZoneList({ title, zones, current, onPick }) {
   )
 }
 
-function PickerBody({ onPick }) {
+function PickerBody({ onPick, forced }) {
   const [text, setText] = useState("")
   const q = useDebounce(text.trim())
   const { data: zones = [], isLoading, isError, refetch } = useZoneSuggestions(q)
+  const all = useZoneSuggestions("") // the full list, used to find the nearest zone
   const recents = useRecentLocations()
   const current = useLocationStore((s) => s.location)
 
   return (
     <div className="space-y-4">
+      {forced && (
+        <p className="text-sm text-gray-600">
+          Pick an area to continue. We use it to show vendors near you.
+        </p>
+      )}
+
+      <UseMyLocation zones={all.data ?? []} loading={all.isLoading} onPick={onPick} />
+
       <Input
         type="search"
         value={text}
@@ -83,23 +93,31 @@ function PickerBody({ onPick }) {
       {!isLoading && !isError && q && zones.length === 0 && (
         <p className="text-sm text-gray-600">No area found. Try Lekki, Ikeja or Yaba.</p>
       )}
-      {/* D09 adds the "Use my current location" button here */}
     </div>
   )
 }
 
 export default function LocationPicker() {
   const open = useLocationStore((s) => s.pickerOpen)
+  const location = useLocationStore((s) => s.location)
   const openPicker = useLocationStore((s) => s.openPicker)
   const closePicker = useLocationStore((s) => s.closePicker)
   const setLocation = useLocationStore((s) => s.setLocation)
-  const isCustomer = useAuthStore((s) => s.user?.role === "customer")
+  const user = useAuthStore((s) => s.user)
+  const status = useAuthStore((s) => s.status)
+  const isCustomer = user?.role === "customer"
   const queryClient = useQueryClient()
+
+  // A logged-in customer must have a location. Visitors can browse without one.
+  const forced = status === "authenticated" && isCustomer && !location
+
+  useEffect(() => {
+    if (forced) openPicker()
+  }, [forced, openPicker])
 
   const pick = async (zone) => {
     setLocation(zone)
     closePicker()
-    // Refresh whatever depends on the location (the feed and search come later).
     queryClient.invalidateQueries({ queryKey: ["feed"] })
     queryClient.invalidateQueries({ queryKey: ["search"] })
     queryClient.invalidateQueries({ queryKey: ["locations", "recent"] })
@@ -114,12 +132,16 @@ export default function LocationPicker() {
 
   return (
     <PickerOverlay
-      open={open}
-      onOpenChange={(next) => (next ? openPicker() : closePicker())}
+      open={open || forced}
+      forced={forced}
+      onOpenChange={(next) => {
+        if (next) openPicker()
+        else if (!forced) closePicker()
+      }}
       title="Choose your location"
       description="Pick an area in Lagos to see vendors near you."
     >
-      <PickerBody onPick={pick} />
+      <PickerBody onPick={pick} forced={forced} />
     </PickerOverlay>
   )
 }
