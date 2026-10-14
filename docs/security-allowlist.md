@@ -10,10 +10,11 @@ Tracks false positives excluded from the gitleaks scan (`.gitleaks.toml`).
 
 ## Current allowlist
 
-| Date | Rule / Pattern | Location | Why it's a false positive | Approved by |
-|------|----------------|----------|---------------------------|-------------|
-| _none yet_ | | | | |
+| Date       | Rule / Pattern | Location | Why it's a false positive | Approved by |
+| ---------- | -------------- | -------- | ------------------------- | ----------- |
+| _none yet_ |                |          |                           |             |
 
 ## npm audit
+
 Critical vulnerabilities fail the build. If a critical issue has no fix available,
 document the package, advisory ID, and mitigation here before merging.
