@@ -18,3 +18,4 @@ export const useLocationStore = create(
     },
   ),
 )
+export const useHasLocation = () => useLocationStore((s) => Boolean(s.location))
