@@ -5,7 +5,7 @@ import AdminLayout from "@/layouts/AdminLayout"
 import Stub from "@/pages/Stub"
 import NotFound from "@/pages/NotFound"
 import Forbidden from "@/pages/Forbidden"
-import { RequireRole } from "./guards"
+import { RequireAuth, RequireRole } from "./guards"
 import DevUI from "@/pages/DevUI"
 import SignupPage from "@/features/auth/SignupPage"
 import VerifyEmailPage from "@/features/auth/VerifyEmailPage"
@@ -31,7 +31,6 @@ export const router = createBrowserRouter([
       { path: "/verify-email", element: <VerifyEmailPage /> },
       { path: "/forgot-password", element: <ForgotPasswordPage /> },
       { path: "/reset-password", element: <ResetPasswordPage /> },
-      { path: "/account/security", element: <ChangePasswordPage /> },
       { path: "/hire-response", element: s("Did you hire this vendor?") },
       { path: "/terms", element: s("Terms of Service") },
       { path: "/privacy", element: s("Privacy Policy") },
@@ -44,6 +43,11 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  {
+    element: <RequireAuth />,
+    children: [{ path: "/account/security", element: <ChangePasswordPage /> }],
+  },
+
   {
     element: <RequireRole roles={["vendor"]} />,
     children: [
