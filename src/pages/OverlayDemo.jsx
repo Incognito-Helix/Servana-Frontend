@@ -3,7 +3,6 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Overlay } from "@/components/ui/overlay"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Toaster } from "@/components/ui/sonner"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ErrorState } from "@/components/ui/error-state"
 
@@ -58,8 +57,6 @@ export default function OverlayDemo() {
           Only verified users can see contact details.
         </p>
       </Overlay>
-
-      <Toaster />
     </section>
   )
 }

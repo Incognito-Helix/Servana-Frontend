@@ -7,6 +7,8 @@ import { queryClient } from "@/lib/queryClient"
 import { setUnauthorizedHandler, setNetworkErrorHandler } from "@/lib/api"
 import AuthBootstrap from "@/features/auth-session/AuthBootstrap"
 import "./index.css"
+import { toast } from "sonner"
+import { Toaster } from "@/components/ui/sonner"
 
 setUnauthorizedHandler(() => {
   const { pathname, search } = window.location
@@ -15,8 +17,10 @@ setUnauthorizedHandler(() => {
 })
 
 setNetworkErrorHandler(() => {
-  // TODO: replace with Temitope's Toast (with a Retry button) once it's merged.
-  console.warn("Network error: show retry toast")
+  toast.error("Network problem. Check your connection and try again.", {
+    id: "network-error",
+    action: { label: "Retry", onClick: () => queryClient.refetchQueries({ type: "active" }) },
+  })
 })
 
 async function enableMocking() {
@@ -32,6 +36,7 @@ enableMocking().then(() => {
         <AuthBootstrap>
           <RouterProvider router={router} future={{ v7_startTransition: true }} />
         </AuthBootstrap>
+        <Toaster />
       </QueryClientProvider>
     </StrictMode>,
   )
