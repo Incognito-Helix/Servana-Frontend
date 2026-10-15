@@ -1,9 +1,8 @@
-import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import VendorCard from "@/features/vendors/VendorCard"
 import { useLocationStore } from "@/store/locationStore"
 import { useFeed } from "./useFeed"
-import { vendorName } from "./feed"
 
 export default function TopVendorsSection({ zone }) {
   const { data, isLoading, isError, refetch } = useFeed(zone.id)
@@ -20,7 +19,7 @@ export default function TopVendorsSection({ zone }) {
       {isLoading && (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Loading vendors">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-24 w-full" />
+            <Skeleton key={i} className="h-64 w-full" />
           ))}
         </div>
       )}
@@ -46,11 +45,8 @@ export default function TopVendorsSection({ zone }) {
       {!isLoading && !isError && top.length > 0 && (
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {top.map((vendor) => (
-            <li key={vendor.id} className="rounded-md border p-3 text-sm">
-              {/* Placeholder row. The next card replaces it with the real VendorCard. */}
-              <Link to={`/p/${vendor.slug}`} className="font-medium underline">
-                {vendorName(vendor)}
-              </Link>
+            <li key={vendor.id}>
+              <VendorCard vendor={vendor} />
             </li>
           ))}
         </ul>
