@@ -4,14 +4,22 @@ updates:
     directory: "/" # folder containing package.json (e.g. "/api" if nested)
     schedule:
       interval: "weekly"
+      day: "monday"
     open-pull-requests-limit: 5
-
-  - package-ecosystem: "docker"
-    directory: "/" # folder containing the Dockerfile
-    schedule:
-      interval: "weekly"
+    groups:
+      dev-dependencies:
+        dependency-type: "development"
+        updates-types: ["minor", "patch"]
+      react:
+        patterns: ["react", "react-dom", "@types/react*"]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/" # always "/" for workflows
     schedule:
-      interval: "weekly"
+      interval: "monthly"
+    groups:
+      actions:
+        patterns: ["*"]
