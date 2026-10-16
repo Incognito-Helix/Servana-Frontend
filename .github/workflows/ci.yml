@@ -6,15 +6,15 @@ on:
 
 jobs:
   frontend-ci:
-    name: Frontend CI - Lint, test, build, and audit
+    name: Frontend CI - Lint, test, and build
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: "npm"
@@ -34,5 +34,44 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Security audit
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        run: |
+          V=8.18.4
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${V}/gitleaks_${V}_linux_x64.tar.gz" | tar -xz gitleaks
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Scan PR commits for secrets
+        run: |
+          gitleaks detect --source . --config .gitleaks.toml \
+            --log-opts="origin/${{ github.base_ref }}..HEAD" \
+            --redact --verbose --exit-code 1
+
+  npm-audit:
+    name: npm-audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit dependencies (fail on high or above)
         run: npm audit --omit=dev --audit-level=high
