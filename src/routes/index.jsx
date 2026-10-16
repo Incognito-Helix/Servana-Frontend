@@ -5,7 +5,7 @@ import AdminLayout from "@/layouts/AdminLayout"
 import Stub from "@/pages/Stub"
 import NotFound from "@/pages/NotFound"
 import Forbidden from "@/pages/Forbidden"
-import { RequireRole } from "./guards"
+import { RequireAuth, RequireRole } from "./guards"
 import DevUI from "@/pages/DevUI"
 import SignupPage from "@/features/auth/SignupPage"
 import VerifyEmailPage from "@/features/auth/VerifyEmailPage"
@@ -13,6 +13,7 @@ import LoginPage from "@/features/auth/LoginPage"
 import ForgotPasswordPage from "@/features/auth/ForgotPasswordPage"
 import ResetPasswordPage from "@/features/auth/ResetPasswordPage"
 import ChangePasswordPage from "@/features/auth/ChangePasswordPage"
+import HomePage from "@/features/home/HomePage"
 
 const s = (title) => <Stub title={title} />
 
@@ -22,7 +23,7 @@ export const router = createBrowserRouter([
   {
     element: <PublicLayout />,
     children: [
-      { path: "/", element: s("Home (For you feed)") },
+      { path: "/", element: <HomePage /> },
       { path: "/search", element: s("Search") },
       { path: "/p/:slug", element: s("Public vendor profile") },
       { path: "/login", element: <LoginPage /> },
@@ -31,7 +32,6 @@ export const router = createBrowserRouter([
       { path: "/verify-email", element: <VerifyEmailPage /> },
       { path: "/forgot-password", element: <ForgotPasswordPage /> },
       { path: "/reset-password", element: <ResetPasswordPage /> },
-      { path: "/account/security", element: <ChangePasswordPage /> },
       { path: "/hire-response", element: s("Did you hire this vendor?") },
       { path: "/terms", element: s("Terms of Service") },
       { path: "/privacy", element: s("Privacy Policy") },
@@ -44,6 +44,11 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  {
+    element: <RequireAuth />,
+    children: [{ path: "/account/security", element: <ChangePasswordPage /> }],
+  },
+
   {
     element: <RequireRole roles={["vendor"]} />,
     children: [

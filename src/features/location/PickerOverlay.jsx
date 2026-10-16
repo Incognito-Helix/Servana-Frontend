@@ -14,13 +14,31 @@ import {
 } from "@/components/ui/sheet"
 import { useMediaQuery } from "./useMediaQuery"
 
-export default function PickerOverlay({ open, onOpenChange, title, description, children }) {
+export default function PickerOverlay({
+  open,
+  onOpenChange,
+  forced,
+  title,
+  description,
+  children,
+}) {
   const isDesktop = useMediaQuery("(min-width: 768px)")
+  // While forced, clicking outside or pressing Esc must not close it.
+  const lock = forced
+    ? {
+        onInteractOutside: (e) => e.preventDefault(),
+        onEscapeKeyDown: (e) => e.preventDefault(),
+      }
+    : {}
 
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-md">
+        <DialogContent
+          {...lock}
+          showCloseButton={!forced}
+          className="max-h-[80vh] overflow-y-auto sm:max-w-md"
+        >
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>{description}</DialogDescription>
@@ -33,7 +51,12 @@ export default function PickerOverlay({ open, onOpenChange, title, description, 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-xl p-4">
+      <SheetContent
+        {...lock}
+        side="bottom"
+        showCloseButton={!forced}
+        className="max-h-[85vh] overflow-y-auto rounded-t-xl p-4"
+      >
         <SheetHeader className="p-0">
           <SheetTitle>{title}</SheetTitle>
           <SheetDescription>{description}</SheetDescription>
