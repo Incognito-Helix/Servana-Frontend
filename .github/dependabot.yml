@@ -16,8 +16,6 @@ updates:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
 
- 
-
   - package-ecosystem: "github-actions"
     directory: "/" # always "/" for workflows
     schedule:
