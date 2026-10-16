@@ -9,7 +9,7 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: "development"
-        updates-types: ["minor", "patch"]
+        update-types: ["minor", "patch"]
       react:
         patterns: ["react", "react-dom", "@types/react*"]
     ignore:
