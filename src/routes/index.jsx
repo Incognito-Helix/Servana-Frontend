@@ -14,6 +14,8 @@ import ForgotPasswordPage from "@/features/auth/ForgotPasswordPage"
 import ResetPasswordPage from "@/features/auth/ResetPasswordPage"
 import ChangePasswordPage from "@/features/auth/ChangePasswordPage"
 import HomePage from "@/features/home/HomePage"
+import OnboardingWizard from "@/features/vendor-onboarding/OnboardingWizard"
+import OnboardingResume from "@/features/vendor-onboarding/OnboardingResume"
 
 const s = (title) => <Stub title={title} />
 
@@ -55,7 +57,8 @@ export const router = createBrowserRouter([
       {
         element: <VendorLayout />,
         children: [
-          { path: "/vendor/onboarding/:step", element: s("Vendor onboarding") },
+          { path: "/vendor/onboarding", element: <OnboardingResume /> },
+          { path: "/vendor/onboarding/:step", element: <OnboardingWizard /> },
           { path: "/vendor/onboarding/review", element: s("Review and submit") },
           { path: "/vendor/profile", element: s("My profile and dashboard") },
           { path: "/vendor/boosts", element: s("Boosts") },

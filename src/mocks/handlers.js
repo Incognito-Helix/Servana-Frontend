@@ -2,6 +2,7 @@ import { authHandlers } from "./auth.handlers"
 import { signupHandlers } from "./signup.handlers"
 import { passwordHandlers } from "./password.handlers"
 import { dataHandlers } from "./data.handlers"
+import { vendorHandlers } from "./vendor.handlers"
 import { boostHandlers } from "./boosts.handlers"
 import { feedHandlers } from "./feed.handlers"
 export const handlers = [
@@ -9,6 +10,7 @@ export const handlers = [
   ...signupHandlers,
   ...passwordHandlers,
   ...dataHandlers,
+  ...vendorHandlers,
   ...boostHandlers,
   ...feedHandlers,
 ]
