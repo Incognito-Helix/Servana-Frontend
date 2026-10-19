@@ -14,7 +14,7 @@ import ForgotPasswordPage from "@/features/auth/ForgotPasswordPage"
 import ResetPasswordPage from "@/features/auth/ResetPasswordPage"
 import ChangePasswordPage from "@/features/auth/ChangePasswordPage"
 import HomePage from "@/features/home/HomePage"
-
+import SearchPage from "@/features/search/SearchPage"
 const s = (title) => <Stub title={title} />
 
 export const router = createBrowserRouter([
@@ -24,7 +24,7 @@ export const router = createBrowserRouter([
     element: <PublicLayout />,
     children: [
       { path: "/", element: <HomePage /> },
-      { path: "/search", element: s("Search") },
+      { path: "/search", element: <SearchPage /> },
       { path: "/p/:slug", element: s("Public vendor profile") },
       { path: "/login", element: <LoginPage /> },
       { path: "/signup", element: <SignupPage /> },
