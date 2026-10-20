@@ -4,6 +4,7 @@ import { useLocationStore } from "@/store/locationStore"
 import { useDebounce } from "@/features/location/useDebounce"
 import HomeSearchBar from "./HomeSearchBar"
 import TopVendorsSection from "./TopVendorsSection"
+import PopularSection from "./PopularSection"
 
 const MIN_SEARCH_LENGTH = 2 // PRD 6.4
 
@@ -38,7 +39,7 @@ export default function HomePage() {
       {location && !searching && (
         <>
           <TopVendorsSection zone={location} />
-          {/* "Popular in [zone]" goes here (next card). */}
+          <PopularSection zone={location} />
         </>
       )}
     </div>
