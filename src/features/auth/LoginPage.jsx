@@ -110,7 +110,9 @@ export default function LoginPage() {
     const user = { ...(data.user ?? data) }
     delete user.token // where the token is stored follows the team's decision
     setUser(user)
-    navigate(next, { replace: true })
+    navigate(user.role === "vendor" && next === "/" ? "/vendor/onboarding" : next, {
+      replace: true,
+    })
   }
 
   const onSubmit = async (values) => {
