@@ -10,14 +10,27 @@ export const zones = [
 ]
 
 export const categories = [
-  { id: "beauty", name: "Beauty", children: ["Hair", "Barbing", "Makeup", "Nails", "Lashes"] },
+  {
+    id: "beauty",
+    name: "Beauty",
+    active: true,
+    children: ["Hair", "Barbing", "Makeup", "Nails", "Lashes"],
+  },
   {
     id: "events",
     name: "Events",
+    active: true,
     children: ["Planners", "Decorators", "DJs", "MCs", "Photographers", "Rentals"],
   },
-  { id: "food", name: "Food", children: ["Caterers", "Small chops", "Cakes"] },
-  { id: "home", name: "Home", children: ["Cleaning", "Laundry"] },
+  { id: "food", name: "Food", active: true, children: ["Caterers", "Small chops", "Cakes"] },
+  { id: "home", name: "Home", active: true, children: ["Cleaning", "Laundry"] },
+  {
+    id: "tech-creative",
+    name: "Tech and creative",
+    active: true,
+    children: ["Web design", "Graphic design", "Video editing", "Photo editing"],
+  },
+  { id: "retired", name: "Retired category", active: false, children: ["Old service"] },
 ]
 
 const slugify = (s) =>
