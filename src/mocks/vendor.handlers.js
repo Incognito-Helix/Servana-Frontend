@@ -1,12 +1,22 @@
 import { http, delay } from "msw"
 import { ok, fail } from "./respond"
 import { users, getSessionUser } from "./auth.handlers"
-import { stepValidators } from "./vendor.validators"
+import { stepSavers, stepValidators } from "./vendor.validators"
+import { hasActiveBoost } from "./boosts.handlers"
 
 const API = import.meta.env.VITE_API_URL
 const STORAGE_KEY = "servana_mock_vendor_profiles"
 const TOTAL_STEPS = 6
-const PROTECTED = ["id", "userId", "status", "slug", "onboarding_step"]
+const PROTECTED = [
+  "id",
+  "userId",
+  "status",
+  "slug",
+  "onboarding_step",
+  "hasActiveBoost",
+  "cooldownOverride",
+]
+const view = (profile) => ({ ...profile, hasActiveBoost: hasActiveBoost(profile.userId) })
 
 const load = () => {
   try {
@@ -61,7 +71,7 @@ export const vendorHandlers = [
     const profiles = load()
     const profile = profileFor(profiles, user)
     save(profiles)
-    return ok(profile)
+    return ok(view(profile))
   }),
 
   // advance: false is an autosave (any partial data, no validation).
@@ -86,11 +96,13 @@ export const vendorHandlers = [
         return fail(400, "VALIDATION", "Check the highlighted fields.", fieldErrors)
       }
     }
-    for (const [key, value] of Object.entries(data)) {
+    const toSave = stepSavers[step] ? stepSavers[step](data, profile, advance) : data
+    for (const [key, value] of Object.entries(toSave)) {
       if (!PROTECTED.includes(key)) profile[key] = value
     }
+
     if (advance) profile.onboarding_step = Math.max(profile.onboarding_step, step + 1)
     save(profiles)
-    return ok(profile)
+    return ok(view(profile))
   }),
 ]
