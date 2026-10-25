@@ -5,6 +5,7 @@ import {
   isNigerianPhone,
   normalizeNigerianPhone,
 } from "./validators"
+import { MAX_RADIUS_KM, insideLagos } from "./location"
 
 const PHONE_MESSAGE = "Enter a valid Nigerian number, like 0803 123 4567 or +234 803 123 4567"
 
@@ -78,6 +79,49 @@ export const step2Schema = z
       })
     }
   })
+export const step3SchemaFor = ({ zoneIds, canWorkRemotely }) =>
+  z
+    .object({
+      state: z.string().min(1, "Pick your state"),
+      city: z.string().min(1, "Pick your city"),
+      zone: z
+        .string()
+        .min(1, "Pick your zone")
+        .refine((v) => v === "" || zoneIds.includes(v), "That zone is not available"),
+      locationSource: z.enum(["zone", "device"]),
+      latitude: z.number().nullable(),
+      longitude: z.number().nullable(),
+      homeService: z.boolean(),
+      travelRadiusKm: z.string().trim(),
+      worksRemotely: z.boolean(),
+    })
+    .superRefine((d, ctx) => {
+      if (d.locationSource === "device" && !insideLagos(d.latitude, d.longitude)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["latitude"],
+          message: "Your location must be inside Lagos. Use your zone's centre instead.",
+        })
+      }
+      if (d.worksRemotely && !canWorkRemotely) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["worksRemotely"],
+          message: "Works remotely is only for Tech and creative services",
+        })
+      }
+      const remote = canWorkRemotely && d.worksRemotely
+      if (d.homeService && !remote) {
+        const radius = Number(d.travelRadiusKm)
+        if (!/^\d+$/.test(d.travelRadiusKm) || radius < 1 || radius > MAX_RADIUS_KM) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["travelRadiusKm"],
+            message: `Enter how far you will travel, from 1 to ${MAX_RADIUS_KM} km`,
+          })
+        }
+      }
+    })
 
 // What gets saved: WhatsApp defaults to the phone number, numbers are stored as +234...
 export function step2Payload(values) {
