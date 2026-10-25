@@ -27,7 +27,7 @@ describe("VerifyEmailPage", () => {
   beforeEach(() => vi.resetAllMocks())
 
   it("sends users without an email back to sign up", () => {
-    setup(undefined)
+    setup(null)
     expect(screen.getByText("signup page")).toBeInTheDocument()
   })
 
