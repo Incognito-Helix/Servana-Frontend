@@ -1,4 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom"
+import SiteHeader from "./SiteHeader"
+
 const links = [
   ["/admin", "Overview"],
   ["/admin/vendors", "Vendor queue"],
@@ -13,6 +15,7 @@ const links = [
 export default function AdminLayout() {
   return (
     <div className="flex min-h-screen">
+      <SiteHeader showLocation={false} />
       <nav className="flex w-52 flex-col gap-2 border-r p-4 text-sm">
         {links.map(([to, label]) => (
           <NavLink key={to} to={to} end={to === "/admin"}>

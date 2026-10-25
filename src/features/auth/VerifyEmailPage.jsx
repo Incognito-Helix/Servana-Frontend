@@ -20,13 +20,16 @@ export default function VerifyEmailPage() {
   const sessionUser = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
   const email = state?.email ?? sessionUser?.email
+  const codeSent = state?.codeSent !== false
+
   const [otp, setOtp] = useState("")
   const [error, setError] = useState("")
   const [info, setInfo] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [resending, setResending] = useState(false)
-  const [expiresIn, resetExpiry] = useCountdown(OTP_EXPIRY_SECONDS)
-  const [cooldown, resetCooldown] = useCountdown(RESEND_COOLDOWN_SECONDS)
+  const [sentOnce, setSentOnce] = useState(codeSent)
+  const [expiresIn, resetExpiry] = useCountdown(codeSent ? OTP_EXPIRY_SECONDS : 0)
+  const [cooldown, resetCooldown] = useCountdown(codeSent ? RESEND_COOLDOWN_SECONDS : 0)
 
   if (!email) return <Navigate to="/signup" replace />
 
@@ -53,7 +56,6 @@ export default function VerifyEmailPage() {
       const me = unwrap(await api.get("/auth/me"))
       const user = me.user ?? me
       setUser(user)
-      // Customers set their location next (home page opens the picker, built on D08).
       navigate(user.role === "vendor" ? "/vendor/onboarding/1" : "/", { replace: true })
     } catch {
       navigate("/login", { replace: true, state: { message: "Email verified. Please log in." } })
@@ -66,8 +68,9 @@ export default function VerifyEmailPage() {
     setInfo("")
     setResending(true)
     try {
-      await api.post("/auth/resend-otp", { email }) // CONFIRM endpoint with backend
+      await api.post("/auth/send-email-otp", { email })
       setOtp("")
+      setSentOnce(true)
       resetExpiry(OTP_EXPIRY_SECONDS)
       resetCooldown(RESEND_COOLDOWN_SECONDS)
       setInfo("A new code has been sent to your email.")
@@ -83,10 +86,16 @@ export default function VerifyEmailPage() {
     }
   }
 
+  const expiryText = !sentOnce
+    ? "We couldn't send your code yet. Tap Resend code."
+    : expiresIn > 0
+      ? `This code expires in ${formatCountdown(expiresIn)}.`
+      : "This code has expired. Request a new one below."
+
   return (
     <div className="mx-auto w-full max-w-md p-4 sm:p-6">
       <h1 className="text-2xl font-semibold">Verify your email</h1>
-      <p className="mt-1 text-sm text-gray-600">
+      <p className="mt-1 text-sm text-muted-foreground">
         We sent a 6-digit code to <strong>{email}</strong>.
       </p>
 
@@ -109,20 +118,18 @@ export default function VerifyEmailPage() {
               textAlign: "center",
             }}
           />
-          <p id="otp-help" className="text-xs text-gray-500">
-            {expiresIn > 0
-              ? `This code expires in ${formatCountdown(expiresIn)}.`
-              : "This code has expired. Request a new one below."}
+          <p id="otp-help" className="text-xs text-muted-foreground">
+            {expiryText}
           </p>
         </div>
 
         {error && (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="text-sm text-destructive">
             {error}
           </p>
         )}
         {info && (
-          <p role="status" className="text-sm text-green-700">
+          <p role="status" className="text-sm text-primary">
             {info}
           </p>
         )}

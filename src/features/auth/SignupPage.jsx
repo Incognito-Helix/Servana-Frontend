@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Link, useNavigate } from "react-router-dom"
@@ -14,7 +14,7 @@ function Field({ label, htmlFor, error, children }) {
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
       {error && (
-        <p role="alert" className="text-xs text-red-600">
+        <p role="alert" className="text-xs text-destructive">
           {error}
         </p>
       )}
@@ -26,6 +26,9 @@ export default function SignupPage() {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [formError, setFormError] = useState("")
+  const [existingEmail, setExistingEmail] = useState("")
+  const [resending, setResending] = useState(false)
+  const [resendError, setResendError] = useState("")
 
   const {
     register,
@@ -49,12 +52,20 @@ export default function SignupPage() {
   })
 
   const role = watch("role")
+  const email = watch("email") || ""
   const password = watch("password") || ""
   const confirm = watch("confirmPassword") || ""
   const mismatch = confirm && password !== confirm ? "Passwords do not match" : ""
 
+  // Forget the "already registered" notice when the email is edited.
+  useEffect(() => {
+    if (existingEmail && email.trim().toLowerCase() !== existingEmail) setExistingEmail("")
+  }, [email, existingEmail])
+
   const onSubmit = async (values) => {
     setFormError("")
+    setExistingEmail("")
+    setResendError("")
     const payload = {
       role: values.role,
       firstName: values.firstName.trim(),
@@ -66,25 +77,53 @@ export default function SignupPage() {
       termsVersion: TERMS_VERSION,
       ...(values.role === "vendor" ? { acceptedVendorPolicy: true } : {}),
     }
+
     try {
       await api.post("/auth/register", payload)
-      navigate("/verify-email", { state: { email: payload.email } })
     } catch (err) {
+      if (err.status === 409 || err.code === "EMAIL_ALREADY_EXISTS") {
+        setExistingEmail(payload.email)
+        return
+      }
       const fe = err.fieldErrors || {}
       const keys = Object.keys(fe)
       keys.forEach((k) => setError(k, { message: Array.isArray(fe[k]) ? fe[k][0] : fe[k] }))
-      if (err.status === 409 && !keys.length) {
-        setError("email", { message: "An account with this email already exists" })
-      } else if (!keys.length) {
-        setFormError(err.message || "Something went wrong. Please try again.")
-      }
+      if (!keys.length) setFormError(err.message || "Something went wrong. Please try again.")
+      return
+    }
+
+    // The account exists now, but register does not send the code. Ask for it.
+    let codeSent = true
+    try {
+      await api.post("/auth/send-email-otp", { email: payload.email })
+    } catch {
+      codeSent = false // the code screen offers Resend code
+    }
+    navigate("/verify-email", { state: { email: payload.email, codeSent } })
+  }
+
+  // Someone who registered before and never got the code can ask for it again.
+  const resendForExisting = async () => {
+    setResendError("")
+    setResending(true)
+    try {
+      await api.post("/auth/send-email-otp", { email: existingEmail })
+      navigate("/verify-email", { state: { email: existingEmail, codeSent: true } })
+    } catch (err) {
+      setResendError(
+        err.status === 429
+          ? "Too many requests. Please wait a bit before asking for another code."
+          : err.message,
+      )
+    } finally {
+      setResending(false)
     }
   }
 
   return (
     <div className="mx-auto w-full max-w-md p-4 sm:p-6">
       <h1 className="text-2xl font-semibold">Create your account</h1>
-      <p className="mt-1 text-sm text-gray-600">
+      <p className="mt-1 text-sm text-muted-foreground">
         Already have an account?{" "}
         <Link to="/login" className="underline">
           Log in
@@ -101,7 +140,7 @@ export default function SignupPage() {
             <label
               key={value}
               className={`cursor-pointer rounded-md border p-3 text-center text-sm ${
-                role === value ? "border-black font-semibold" : ""
+                role === value ? "border-primary font-semibold" : ""
               }`}
             >
               <input type="radio" value={value} className="sr-only" {...register("role")} />
@@ -154,7 +193,10 @@ export default function SignupPage() {
           </div>
           <ul className="mt-2 space-y-1 text-xs">
             {passwordRules.map((r) => (
-              <li key={r.id} className={r.test(password) ? "text-green-700" : "text-gray-500"}>
+              <li
+                key={r.id}
+                className={r.test(password) ? "text-primary" : "text-muted-foreground"}
+              >
                 {r.test(password) ? "✓" : "•"} {r.label}
               </li>
             ))}
@@ -191,7 +233,7 @@ export default function SignupPage() {
               </span>
             </label>
             {errors.acceptedTerms && (
-              <p role="alert" className="mt-1 text-xs text-red-600">
+              <p role="alert" className="mt-1 text-xs text-destructive">
                 {errors.acceptedTerms.message}
               </p>
             )}
@@ -209,7 +251,7 @@ export default function SignupPage() {
                 </span>
               </label>
               {errors.acceptedVendorPolicy && (
-                <p role="alert" className="mt-1 text-xs text-red-600">
+                <p role="alert" className="mt-1 text-xs text-destructive">
                   {errors.acceptedVendorPolicy.message}
                 </p>
               )}
@@ -217,8 +259,26 @@ export default function SignupPage() {
           )}
         </div>
 
+        {existingEmail && (
+          <div
+            role="alert"
+            className="space-y-2 rounded-md border border-destructive/40 p-3 text-sm"
+          >
+            <p>This email is already registered. Log in, or verify your email.</p>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/login">Log in</Link>
+              </Button>
+              <Button type="button" size="sm" onClick={resendForExisting} disabled={resending}>
+                {resending ? "Sending..." : "Resend code"}
+              </Button>
+            </div>
+            {resendError && <p className="text-destructive">{resendError}</p>}
+          </div>
+        )}
+
         {formError && (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="text-sm text-destructive">
             {formError}
           </p>
         )}

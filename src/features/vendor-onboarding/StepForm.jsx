@@ -41,7 +41,6 @@ export default function StepForm({
         data: toPayload ? toPayload(values) : values,
         advance: true,
       })
-
       navigate(isLast ? REVIEW_PATH : stepPath(step + 1))
     } catch (error) {
       applyApiErrors(error, setError)

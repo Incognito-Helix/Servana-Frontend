@@ -91,7 +91,6 @@ export const vendorHandlers = [
     }
     if (advance) {
       const fieldErrors = stepValidators[step]?.(data, profile, profiles)
-
       if (fieldErrors && Object.keys(fieldErrors).length > 0) {
         return fail(400, "VALIDATION", "Check the highlighted fields.", fieldErrors)
       }
