@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
-import { render, screen, cleanup } from "@testing-library/react"
+import { describe, it, expect, vi, beforeEach } from "vitest"
+import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { MemoryRouter, Route, Routes } from "react-router-dom"
 import VerifyEmailPage from "./VerifyEmailPage"
@@ -24,11 +24,10 @@ const setup = (state = { email: "ada@example.com" }) => {
 const verifyButton = () => screen.getByRole("button", { name: /Verify email|Verifying/ })
 
 describe("VerifyEmailPage", () => {
-  beforeEach(() => vi.clearAllMocks())
-  afterEach(() => cleanup())
+  beforeEach(() => vi.resetAllMocks())
 
   it("sends users without an email back to sign up", () => {
-    setup({})
+    setup(undefined)
     expect(screen.getByText("signup page")).toBeInTheDocument()
   })
 
@@ -67,8 +66,17 @@ describe("VerifyEmailPage", () => {
     expect(await screen.findByText("onboarding page")).toBeInTheDocument()
   })
 
-  it("starts with the resend button on cooldown", () => {
+  it("starts with the resend button on cooldown after a code was sent", () => {
     setup()
     expect(screen.getByRole("button", { name: /Resend code in/ })).toBeDisabled()
+  })
+
+  it("lets the user resend straight away when the code was not sent", async () => {
+    api.post.mockResolvedValue({})
+    const user = setup({ email: "ada@example.com", codeSent: false })
+    expect(screen.getByText(/couldn't send your code/)).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Resend code" }))
+    expect(api.post).toHaveBeenCalledWith("/auth/send-email-otp", { email: "ada@example.com" })
+    expect(await screen.findByText(/new code has been sent/)).toBeInTheDocument()
   })
 })
