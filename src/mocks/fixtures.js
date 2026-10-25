@@ -1,23 +1,43 @@
 const naira = (n) => n * 100 // prices are integer kobo
 
 export const zones = [
-  { id: "lekki", name: "Lekki", city: "Lagos", lat: 6.4474, lng: 3.4723 },
-  { id: "ikeja", name: "Ikeja", city: "Lagos", lat: 6.6018, lng: 3.3515 },
-  { id: "yaba", name: "Yaba", city: "Lagos", lat: 6.5095, lng: 3.3711 },
-  { id: "surulere", name: "Surulere", city: "Lagos", lat: 6.5, lng: 3.35 },
-  { id: "victoria-island", name: "Victoria Island", city: "Lagos", lat: 6.4281, lng: 3.4219 },
-  { id: "ikorodu", name: "Ikorodu", city: "Lagos", lat: 6.6194, lng: 3.5105 },
+  { id: "lekki", name: "Lekki", state: "Lagos", city: "Lagos", lat: 6.4474, lng: 3.4723 },
+  { id: "ikeja", name: "Ikeja", state: "Lagos", city: "Lagos", lat: 6.6018, lng: 3.3515 },
+  { id: "yaba", name: "Yaba", state: "Lagos", city: "Lagos", lat: 6.5095, lng: 3.3711 },
+  { id: "surulere", name: "Surulere", state: "Lagos", city: "Lagos", lat: 6.5, lng: 3.35 },
+  {
+    id: "victoria-island",
+    name: "Victoria Island",
+    state: "Lagos",
+    city: "Lagos",
+    lat: 6.4281,
+    lng: 3.4219,
+  },
+  { id: "ikorodu", name: "Ikorodu", state: "Lagos", city: "Lagos", lat: 6.6194, lng: 3.5105 },
 ]
 
 export const categories = [
-  { id: "beauty", name: "Beauty", children: ["Hair", "Barbing", "Makeup", "Nails", "Lashes"] },
+  {
+    id: "beauty",
+    name: "Beauty",
+    active: true,
+    children: ["Hair", "Barbing", "Makeup", "Nails", "Lashes"],
+  },
   {
     id: "events",
     name: "Events",
+    active: true,
     children: ["Planners", "Decorators", "DJs", "MCs", "Photographers", "Rentals"],
   },
-  { id: "food", name: "Food", children: ["Caterers", "Small chops", "Cakes"] },
-  { id: "home", name: "Home", children: ["Cleaning", "Laundry"] },
+  { id: "food", name: "Food", active: true, children: ["Caterers", "Small chops", "Cakes"] },
+  { id: "home", name: "Home", active: true, children: ["Cleaning", "Laundry"] },
+  {
+    id: "tech-creative",
+    name: "Tech and creative",
+    active: true,
+    children: ["Web design", "Graphic design", "Video editing", "Photo editing"],
+  },
+  { id: "retired", name: "Retired category", active: false, children: ["Old service"] },
 ]
 
 const slugify = (s) =>

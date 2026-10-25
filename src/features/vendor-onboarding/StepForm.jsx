@@ -12,7 +12,15 @@ const STATUS_TEXT = {
 }
 
 // Shared by every step: autosave, Back, and "Save and continue".
-export default function StepForm({ step, title, description, schema, defaultValues, children }) {
+export default function StepForm({
+  step,
+  title,
+  description,
+  schema,
+  defaultValues,
+  toPayload,
+  children,
+}) {
   const navigate = useNavigate()
   const saveStep = useSaveStep()
   const form = useZodForm(schema, { defaultValues })
@@ -22,13 +30,17 @@ export default function StepForm({ step, title, description, schema, defaultValu
     watch,
     formState: { isSubmitting, errors },
   } = form
-  const { status, cancel } = useAutosave({ step, watch })
+  const { status, cancel } = useAutosave({ step, watch, transform: toPayload })
   const isLast = step === TOTAL_STEPS
 
   const onSubmit = async (values) => {
     cancel()
     try {
-      await saveStep.mutateAsync({ step, data: values, advance: true })
+      await saveStep.mutateAsync({
+        step,
+        data: toPayload ? toPayload(values) : values,
+        advance: true,
+      })
       navigate(isLast ? REVIEW_PATH : stepPath(step + 1))
     } catch (error) {
       applyApiErrors(error, setError)

@@ -1,10 +1,13 @@
+import BusinessInfoStep from "./BusinessInfoStep"
+import ContactStep from "./ContactStep"
 import PlaceholderStep from "./PlaceholderStep"
+import LocationStep from "./LocationStep"
 
-// D09 replaces 1 and 2, D10 replaces 3, and so on.
+// D10 replaces 3, and so on.
 export const STEP_COMPONENTS = {
-  1: PlaceholderStep,
-  2: PlaceholderStep,
-  3: PlaceholderStep,
+  1: BusinessInfoStep,
+  2: ContactStep,
+  3: LocationStep,
   4: PlaceholderStep,
   5: PlaceholderStep,
   6: PlaceholderStep,
