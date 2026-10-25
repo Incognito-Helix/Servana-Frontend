@@ -75,6 +75,8 @@ const requireVendor = () => {
 const statusOf = (b) =>
   b.status === "active" && Date.now() > Date.parse(b.endsAt) ? "expired" : b.status
 const publicBoost = (b) => ({ ...b, ownerId: undefined, status: statusOf(b) })
+export const hasActiveBoost = (ownerId) =>
+  boosts.some((b) => b.ownerId === ownerId && statusOf(b) === "active")
 
 function validateOrder({ type, zones: zoneIds, duration }) {
   const fieldErrors = {}

@@ -1,11 +1,22 @@
-import { categories, vendors } from "./fixtures"
+import { categories, vendors, zones } from "./fixtures"
 import {
   containsContactInfo,
   isHttpUrl,
   normalizeNigerianPhone,
 } from "@/features/vendor-onboarding/validators"
+import {
+  MAX_RADIUS_KM,
+  baseChanged,
+  cooldownEnd,
+  insideLagos,
+  isLocked,
+  isTechCreativeService,
+} from "@/features/vendor-onboarding/location"
+import { hasActiveBoost } from "./boosts.handlers"
+import { formatLagosDate } from "@/lib/dates"
 
 const SEEDED_TAKEN = ["+2348031234567"]
+const BASE_KEYS = ["state", "city", "zone", "locationSource", "latitude", "longitude"]
 
 const activeServices = () => categories.filter((c) => c.active !== false).flatMap((c) => c.children)
 
@@ -67,4 +78,55 @@ function step2(data, profile, profiles) {
   return errors
 }
 
-export const stepValidators = { 1: step1, 2: step2 }
+function step3(data, profile) {
+  const errors = {}
+  const zone = zones.find((z) => z.id === data.zone)
+  if (!data.state) errors.state = "Pick your state"
+  if (!data.city) errors.city = "Pick your city"
+  if (!data.zone) errors.zone = "Pick your zone"
+  else if (!zone) errors.zone = "That zone is not available"
+  else if (zone.state !== data.state || zone.city !== data.city)
+    errors.zone = "That zone is not in the selected city"
+
+  if (data.latitude != null || data.longitude != null) {
+    if (!insideLagos(data.latitude, data.longitude))
+      errors.latitude = "Your location must be inside Lagos"
+  }
+
+  if (data.worksRemotely && !isTechCreativeService(categories, profile.primaryService)) {
+    errors.worksRemotely = "Works remotely is only for Tech and creative services"
+  }
+  if (data.homeService && !data.worksRemotely) {
+    const radius = Number(data.travelRadiusKm)
+    if (!Number.isInteger(radius) || radius < 1 || radius > MAX_RADIUS_KM) {
+      errors.travelRadiusKm = `Enter how far you will travel, from 1 to ${MAX_RADIUS_KM} km`
+    }
+  }
+
+  const view = {
+    ...profile,
+    hasActiveBoost: Boolean(profile.hasActiveBoost) || hasActiveBoost(profile.userId),
+  }
+  if (!errors.zone && isLocked(view) && baseChanged(profile, data)) {
+    errors.zone = `You changed your base location recently. You can change it again on ${formatLagosDate(cooldownEnd(profile))}, or sooner while a boost is active.`
+  }
+
+  return errors
+}
+
+export const stepValidators = { 1: step1, 2: step2, 3: step3 }
+
+// Decides what is actually stored. After setup, a base location change is only
+// committed with "Save and continue" (never by autosave), and that stamps the cooldown.
+export const stepSavers = {
+  3: (data, profile, advance) => {
+    const clean = { ...data }
+    delete clean.baseLocationChangedAt
+    if (profile.status === "draft" || !baseChanged(profile, clean)) return clean
+    if (!advance) {
+      for (const key of BASE_KEYS) delete clean[key]
+      return clean
+    }
+    return { ...clean, baseLocationChangedAt: new Date().toISOString() }
+  },
+}
