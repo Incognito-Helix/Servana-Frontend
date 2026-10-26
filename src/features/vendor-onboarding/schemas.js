@@ -6,6 +6,7 @@ import {
   normalizeNigerianPhone,
 } from "./validators"
 import { MAX_RADIUS_KM, insideLagos } from "./location"
+import { MAX_SERVICES, parseNairaToKobo } from "./services"
 
 const PHONE_MESSAGE = "Enter a valid Nigerian number, like 0803 123 4567 or +234 803 123 4567"
 
@@ -132,3 +133,60 @@ export function step2Payload(values) {
   )
   return { phone, whatsapp: values.whatsappSame ? phone : tidy(values.whatsapp), socials }
 }
+const serviceRow = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Service name must be at least 2 characters")
+    .max(60, "Service name must be at most 60 characters"),
+  startPrice: z.string().trim(),
+  maxPrice: z.string().trim(),
+})
+
+export const step4Schema = z
+  .object({
+    services: z
+      .array(serviceRow)
+      .min(1, "Add at least one service")
+      .max(MAX_SERVICES, `You can add up to ${MAX_SERVICES} services`),
+  })
+  .superRefine((d, ctx) => {
+    const seen = new Set()
+    d.services.forEach((row, i) => {
+      const start = parseNairaToKobo(row.startPrice)
+      if (!(start > 0)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["services", i, "startPrice"],
+          message: row.startPrice
+            ? "Enter a price above ₦0, like 40000 or 1500.50"
+            : "Enter a starting price",
+        })
+      }
+      if (row.maxPrice) {
+        const max = parseNairaToKobo(row.maxPrice)
+        if (!(max > 0)) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["services", i, "maxPrice"],
+            message: "Enter a valid max price, or leave it empty",
+          })
+        } else if (start > 0 && max < start) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["services", i, "maxPrice"],
+            message: "Max price cannot be below the starting price",
+          })
+        }
+      }
+      const key = row.name.toLowerCase()
+      if (key && seen.has(key)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["services", i, "name"],
+          message: "You already added this service",
+        })
+      }
+      seen.add(key)
+    })
+  })
