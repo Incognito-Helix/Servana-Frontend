@@ -12,13 +12,16 @@ const PROTECTED = [
   "userId",
   "status",
   "slug",
+  "coverImageUrl",
+  "profileImageUrl",
+  "portfolioImages",
   "onboarding_step",
   "hasActiveBoost",
   "cooldownOverride",
 ]
 const view = (profile) => ({ ...profile, hasActiveBoost: hasActiveBoost(profile.userId) })
 
-const load = () => {
+export const load = () => {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? {}
   } catch {
@@ -26,7 +29,7 @@ const load = () => {
   }
 }
 
-const save = (profiles) => {
+export const save = (profiles) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles))
   } catch {
@@ -41,7 +44,7 @@ const requestUser = (request) => {
     : getSessionUser()
 }
 
-const guard = (request) => {
+export const guard = (request) => {
   const user = requestUser(request)
   if (!user) return { error: fail(401, "UNAUTHORIZED", "Log in") }
   if (user.role !== "vendor")
@@ -49,7 +52,7 @@ const guard = (request) => {
   return { user }
 }
 
-const profileFor = (profiles, user) => {
+export const profileFor = (profiles, user) => {
   if (!profiles[user.id]) {
     profiles[user.id] = {
       id: `p_${user.id}`,

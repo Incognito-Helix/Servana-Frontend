@@ -5,12 +5,15 @@ import { dataHandlers } from "./data.handlers"
 import { vendorHandlers } from "./vendor.handlers"
 import { boostHandlers } from "./boosts.handlers"
 import { feedHandlers } from "./feed.handlers"
+import { uploadHandlers } from "./uploads.handlers"
+
 export const handlers = [
   ...authHandlers,
   ...signupHandlers,
   ...passwordHandlers,
   ...dataHandlers,
   ...vendorHandlers,
+  ...uploadHandlers,
   ...boostHandlers,
   ...feedHandlers,
 ]
