@@ -143,7 +143,15 @@ function step4(data) {
   return errors
 }
 
-export const stepValidators = { 1: step1, 2: step2, 3: step3, 4: step4 }
+function step5(data, profile) {
+  const errors = {}
+  if (!profile.coverImageUrl) errors.coverImage = "Add a cover image"
+  if (!profile.profileImageUrl) errors.profileImage = "Add a profile photo"
+  if (!(profile.portfolioImages ?? []).length) errors.portfolio = "Add at least one portfolio image"
+  return errors
+}
+
+export const stepValidators = { 1: step1, 2: step2, 3: step3, 4: step4, 5: step5 }
 
 // Decides what is actually stored. After setup, a base location change is only
 // committed with "Save and continue" (never by autosave), and that stamps the cooldown.
