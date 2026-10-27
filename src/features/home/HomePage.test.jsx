@@ -7,6 +7,9 @@ import { useFeed } from "./useFeed"
 import { useLocationStore } from "@/store/locationStore"
 
 vi.mock("./useFeed", () => ({ useFeed: vi.fn() }))
+vi.mock("@/features/search/SearchResults", () => ({
+  default: ({ q }) => <p>Search results for “{q}”</p>,
+}))
 
 const lekki = { id: "lekki", name: "Lekki", city: "Lagos" }
 const feed = (top = []) => ({
