@@ -113,12 +113,54 @@ function step3(data, profile) {
 
   return errors
 }
+function step4(data) {
+  const errors = {}
+  const services = Array.isArray(data.services) ? data.services : []
+  if (services.length < 1) errors.services = "Add at least one service"
+  else if (services.length > 20) errors.services = "You can add up to 20 services"
 
-export const stepValidators = { 1: step1, 2: step2, 3: step3 }
+  const seen = new Set()
+  services.forEach((service, i) => {
+    const name = String(service.name ?? "").trim()
+    if (name.length < 2 || name.length > 60)
+      errors[`services.${i}.name`] = "Service name must be 2 to 60 characters"
+    else if (seen.has(name.toLowerCase()))
+      errors[`services.${i}.name`] = "You already added this service"
+    seen.add(name.toLowerCase())
+
+    const start = service.priceFromKobo
+    if (!Number.isInteger(start) || start <= 0)
+      errors[`services.${i}.startPrice`] = "Enter a starting price above ₦0"
+    const max = service.maxPriceKobo
+    if (max != null) {
+      if (!Number.isInteger(max) || max <= 0)
+        errors[`services.${i}.maxPrice`] = "Enter a valid max price, or leave it empty"
+      else if (Number.isInteger(start) && max < start) {
+        errors[`services.${i}.maxPrice`] = "Max price cannot be below the starting price"
+      }
+    }
+  })
+  return errors
+}
+
+function step5(data, profile) {
+  const errors = {}
+  if (!profile.coverImageUrl) errors.coverImage = "Add a cover image"
+  if (!profile.profileImageUrl) errors.profileImage = "Add a profile photo"
+  if (!(profile.portfolioImages ?? []).length) errors.portfolio = "Add at least one portfolio image"
+  return errors
+}
+
+export const stepValidators = { 1: step1, 2: step2, 3: step3, 4: step4, 5: step5 }
 
 // Decides what is actually stored. After setup, a base location change is only
 // committed with "Save and continue" (never by autosave), and that stamps the cooldown.
 export const stepSavers = {
+  1: (data, profile) =>
+    isTechCreativeService(categories, data.primaryService) || !profile.worksRemotely
+      ? data
+      : { ...data, worksRemotely: false },
+
   3: (data, profile, advance) => {
     const clean = { ...data }
     delete clean.baseLocationChangedAt
