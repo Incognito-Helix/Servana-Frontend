@@ -67,7 +67,7 @@ api.interceptors.response.use(
         code: "NETWORK_ERROR",
         message: "Network problem. Check your connection and try again.",
       })
-      networkErrorHandler(apiError)
+      if (!error.config?.silent) networkErrorHandler(apiError)
       return Promise.reject(apiError)
     }
 
@@ -86,7 +86,8 @@ api.interceptors.response.use(
         clearToken()
         useAuthStore.getState().clearUser()
       }
-      if (!NO_REDIRECT.some((p) => url.startsWith(p))) unauthorizedHandler()
+      if (!error.config?.silent && !NO_REDIRECT.some((p) => url.startsWith(p)))
+        unauthorizedHandler()
     }
     return Promise.reject(apiError)
   },

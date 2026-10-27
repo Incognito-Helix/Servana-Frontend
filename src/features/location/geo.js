@@ -49,3 +49,18 @@ export function geoErrorMessage(err) {
     return "Your browser can't share its location. Pick an area from the list."
   return "We couldn't find your location. Pick an area from the list."
 }
+
+// The closest other zones, nearest first. Zones without coordinates are skipped.
+export function nearbyZones(currentId, zones, count = 3) {
+  const current = zones.find((z) => z.id === currentId)
+  if (!current) return []
+  const origin = coordsOf(current)
+  if (typeof origin.lat !== "number" || typeof origin.lng !== "number") return []
+  return zones
+    .filter((z) => z.id !== currentId)
+    .map((zone) => ({ zone, km: haversineKm(origin, coordsOf(zone)) }))
+    .filter(({ km }) => Number.isFinite(km))
+    .sort((a, b) => a.km - b.km)
+    .slice(0, count)
+    .map(({ zone }) => zone)
+}

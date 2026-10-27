@@ -25,4 +25,5 @@ export const feedHandlers = [
       popular: boosted.length ? { zone, vendors: boosted.slice(0, 8) } : null,
     })
   }),
+  http.post(`${API}/events/impressions`, async () => ok({ recorded: true }, 202)),
 ]
