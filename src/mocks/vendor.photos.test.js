@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { stepValidators } from "./vendor.validators"
+import { stepValidators, stepSavers } from "./vendor.validators"
 
 const full = {
   coverImageUrl: "u",
@@ -22,5 +22,11 @@ describe("mock step 5 checks", () => {
 
   it("needs the portfolio image specifically", () => {
     expect(stepValidators[5]({}, { ...full, portfolioImages: [] }).portfolio).toBeTruthy()
+  })
+
+  it("clears worksRemotely when the primary service is non-tech", () => {
+    expect(stepSavers[1]({ primaryService: "Makeup" }, { worksRemotely: true }).worksRemotely).toBe(
+      false,
+    )
   })
 })
