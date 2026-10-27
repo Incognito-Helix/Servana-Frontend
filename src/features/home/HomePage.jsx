@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { useLocationStore } from "@/store/locationStore"
 import { useDebounce } from "@/features/location/useDebounce"
@@ -32,7 +33,17 @@ export default function HomePage() {
       )}
 
       {/* PRD 5.3: typing replaces the feed with ranked results. Clearing brings it back. */}
-      {location && searching && <SearchResults q={q} zoneId={location.id} />}
+      {location && searching && (
+        <div className="space-y-3">
+          <Link
+            to={`/search?zone=${encodeURIComponent(location.id)}&q=${encodeURIComponent(q)}`}
+            className="text-sm underline"
+          >
+            Filter these results
+          </Link>
+          <SearchResults q={q} zoneId={location.id} />
+        </div>
+      )}
 
       {location && !searching && (
         <>

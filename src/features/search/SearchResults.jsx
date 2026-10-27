@@ -5,6 +5,7 @@ import VendorCard from "@/features/vendors/VendorCard"
 import { useLocationStore } from "@/store/locationStore"
 import { useSearch } from "./useSearch"
 import { flattenPages, isSponsored } from "./results"
+import { EMPTY_FILTERS, countActive } from "./filters"
 
 function SkeletonGrid({ label, count = 6 }) {
   return (
@@ -16,12 +17,13 @@ function SkeletonGrid({ label, count = 6 }) {
   )
 }
 
-export default function SearchResults({ q, zoneId }) {
+export default function SearchResults({ q, zoneId, filters = EMPTY_FILTERS, onClearFilters }) {
   const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useSearch({ q, zoneId })
+    useSearch({ q, zoneId, filters })
   const openPicker = useLocationStore((s) => s.openPicker)
   const sentinel = useRef(null)
   const vendors = flattenPages(data)
+  const filtersActive = countActive(filters) > 0
 
   // Infinite scroll: load the next page when the bottom comes into view.
   useEffect(() => {
@@ -43,7 +45,7 @@ export default function SearchResults({ q, zoneId }) {
 
       {isError && (
         <div role="alert" className="space-y-2 text-sm">
-          <p className="text-red-600">We couldn&apos;t load results. Check your connection.</p>
+          <p className="text-destructive">We couldn&apos;t load results. Check your connection.</p>
           <Button type="button" variant="outline" size="sm" onClick={() => refetch()}>
             Try again
           </Button>
@@ -52,10 +54,19 @@ export default function SearchResults({ q, zoneId }) {
 
       {!isLoading && !isError && vendors.length === 0 && (
         <div className="space-y-2 rounded-md border p-4 text-sm">
-          <p>No vendors found{q ? ` for “${q}”` : ""}. Try a different search or area.</p>
-          <Button type="button" variant="outline" size="sm" onClick={openPicker}>
-            Change area
-          </Button>
+          <p>
+            No vendors found{q ? ` for “${q}”` : ""}.{" "}
+            {filtersActive ? "Try removing some filters." : "Try a different search or area."}
+          </p>
+          {filtersActive && onClearFilters ? (
+            <Button type="button" variant="outline" size="sm" onClick={onClearFilters}>
+              Clear filters
+            </Button>
+          ) : (
+            <Button type="button" variant="outline" size="sm" onClick={openPicker}>
+              Change area
+            </Button>
+          )}
         </div>
       )}
 
