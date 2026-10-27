@@ -14,6 +14,7 @@ import {
 } from "@/features/vendor-onboarding/location"
 import { hasActiveBoost } from "./boosts.handlers"
 import { formatLagosDate } from "@/lib/dates"
+import { DAYS, dayProblem } from "@/features/vendor-onboarding/hours"
 
 const SEEDED_TAKEN = ["+2348031234567"]
 const BASE_KEYS = ["state", "city", "zone", "locationSource", "latitude", "longitude"]
@@ -148,6 +149,15 @@ function step5(data, profile) {
   if (!profile.coverImageUrl) errors.coverImage = "Add a cover image"
   if (!profile.profileImageUrl) errors.profileImage = "Add a profile photo"
   if (!(profile.portfolioImages ?? []).length) errors.portfolio = "Add at least one portfolio image"
+  for (const { key } of DAYS) {
+    const day = data.hours?.[key]
+    if (!day || typeof day.closed !== "boolean")
+      errors[`hours.${key}.close`] = "Set the hours for every day"
+    else {
+      const problem = dayProblem(day)
+      if (problem) errors[`hours.${key}.close`] = problem
+    }
+  }
   return errors
 }
 

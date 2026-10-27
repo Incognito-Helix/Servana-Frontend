@@ -7,6 +7,7 @@ import {
 } from "./validators"
 import { MAX_RADIUS_KM, insideLagos } from "./location"
 import { MAX_SERVICES, parseNairaToKobo } from "./services"
+import { DAYS, dayProblem } from "./hours"
 
 const PHONE_MESSAGE = "Enter a valid Nigerian number, like 0803 123 4567 or +234 803 123 4567"
 
@@ -190,3 +191,11 @@ export const step4Schema = z
       seen.add(key)
     })
   })
+const daySchema = z
+  .object({ closed: z.boolean(), open: z.string(), close: z.string() })
+  .superRefine((day, ctx) => {
+    const problem = dayProblem(day)
+    if (problem) ctx.addIssue({ code: "custom", path: ["close"], message: problem })
+  })
+
+export const hoursSchema = z.object(Object.fromEntries(DAYS.map(({ key }) => [key, daySchema])))
