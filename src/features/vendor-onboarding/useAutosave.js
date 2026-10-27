@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { PROFILE_KEY } from "./hooks"
+import { PROFILE_KEY, mergeProfile } from "./hooks"
 import { saveVendorStep } from "./profileApi"
 
 // Saves the form 800ms after the last change, and once more when the step is left.
@@ -30,7 +30,7 @@ export function useAutosave({ step, watch, transform, delay = 800 }) {
     setStatus("saving")
     try {
       const profile = await saveVendorStep({ step, data, advance: false })
-      queryClient.setQueryData(PROFILE_KEY, profile)
+      queryClient.setQueryData(PROFILE_KEY, (current) => mergeProfile(current, profile))
       setStatus("saved")
     } catch {
       setStatus("error")

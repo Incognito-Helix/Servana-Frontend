@@ -156,6 +156,11 @@ export const stepValidators = { 1: step1, 2: step2, 3: step3, 4: step4, 5: step5
 // Decides what is actually stored. After setup, a base location change is only
 // committed with "Save and continue" (never by autosave), and that stamps the cooldown.
 export const stepSavers = {
+  1: (data, profile) =>
+    isTechCreativeService(categories, data.primaryService) || !profile.worksRemotely
+      ? data
+      : { ...data, worksRemotely: false },
+
   3: (data, profile, advance) => {
     const clean = { ...data }
     delete clean.baseLocationChangedAt

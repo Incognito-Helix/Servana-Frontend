@@ -159,7 +159,7 @@ export const step4Schema = z
           code: "custom",
           path: ["services", i, "startPrice"],
           message: row.startPrice
-            ? "Enter a price above ₦0, like 40000 or 1500.50"
+            ? "Enter a price above ₦0 and under ₦1,000,000,000, like 40000 or 1500.50"
             : "Enter a starting price",
         })
       }
