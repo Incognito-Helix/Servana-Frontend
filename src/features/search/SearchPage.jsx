@@ -12,6 +12,8 @@ import { useLocationStore } from "@/store/locationStore"
 import { useDebounce } from "@/features/location/useDebounce"
 import { useMediaQuery } from "@/features/location/useMediaQuery"
 import { useZoneSuggestions } from "@/features/location/useZoneSuggestions"
+import { usePickLocation } from "@/features/location/usePickLocation"
+import { nearbyZones } from "@/features/location/geo"
 import HomeSearchBar from "@/features/home/HomeSearchBar"
 import SearchResults from "./SearchResults"
 import FiltersForm from "./FiltersForm"
@@ -19,10 +21,13 @@ import ActiveFilters from "./ActiveFilters"
 import { cleanQuery, MIN_QUERY_LENGTH } from "./results"
 import { applyFilters, clearFilters, countActive, parseFilters, removeFilter } from "./filters"
 
+const NO_ZONES = []
+
 export default function SearchPage() {
   const [params, setParams] = useSearchParams()
   const location = useLocationStore((s) => s.location)
   const openPicker = useLocationStore((s) => s.openPicker)
+  const pickLocation = usePickLocation()
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -36,8 +41,10 @@ export default function SearchPage() {
   const debounced = useDebounce(cleanQuery(text), 300)
   const q = debounced.length >= MIN_QUERY_LENGTH ? debounced : ""
 
-  const zones = useZoneSuggestions("").data ?? []
+  const zonesData = useZoneSuggestions("").data
+  const zones = zonesData ?? NO_ZONES
   const zoneName = zones.find((z) => z.id === zoneId)?.name ?? location?.name
+  const nearbyAreas = useMemo(() => nearbyZones(zoneId, zones), [zoneId, zones])
 
   // Keep ?q= in step with what was typed.
   useEffect(() => {
@@ -73,6 +80,19 @@ export default function SearchPage() {
   const apply = (values) => setParams((prev) => applyFilters(prev, values))
   const clear = () => setParams((prev) => clearFilters(prev))
   const remove = (key) => setParams((prev) => removeFilter(prev, key))
+
+  // A suggested nearby area: save it, and put it in the URL straight away.
+  const chooseNearby = (zone) => {
+    pickLocation(zone)
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        next.set("zone", zone.id)
+        return next
+      },
+      { replace: true },
+    )
+  }
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
@@ -112,7 +132,14 @@ export default function SearchPage() {
               </Button>
             )}
             <ActiveFilters filters={filters} onRemove={remove} onClear={clear} />
-            <SearchResults q={q} zoneId={zoneId} filters={filters} onClearFilters={clear} />
+            <SearchResults
+              q={q}
+              zoneId={zoneId}
+              filters={filters}
+              onClearFilters={clear}
+              nearbyAreas={nearbyAreas}
+              onPickArea={chooseNearby}
+            />
           </div>
         </div>
       )}

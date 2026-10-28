@@ -18,6 +18,7 @@ vi.mock("./SearchResults", () => ({
 vi.mock("@/features/location/useZoneSuggestions", () => ({
   useZoneSuggestions: () => ({ data: [{ id: "lekki", name: "Lekki" }] }),
 }))
+vi.mock("@/features/location/usePickLocation", () => ({ usePickLocation: () => vi.fn() }))
 
 const show = (url) =>
   render(
