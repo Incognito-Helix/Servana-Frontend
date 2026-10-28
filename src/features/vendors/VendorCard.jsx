@@ -1,15 +1,8 @@
 import { Link } from "react-router-dom"
 import { MapPin, Star } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { BADGE } from "./badges"
 import { toCardData, formatNaira, ratingText, distanceText } from "./cardData"
-
-// Change these to match the variant names in Temitope's badge.jsx.
-const BADGE = {
-  verified: "verified",
-  sponsored: "sponsored",
-  home: "home-service",
-  remote: "works-remotely",
-}
 
 export default function VendorCard({ vendor, sponsored = false }) {
   const v = toCardData(vendor)

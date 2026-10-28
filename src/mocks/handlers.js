@@ -6,8 +6,10 @@ import { vendorHandlers } from "./vendor.handlers"
 import { boostHandlers } from "./boosts.handlers"
 import { feedHandlers } from "./feed.handlers"
 import { uploadHandlers } from "./uploads.handlers"
+import { profileHandlers } from "./profile.handlers"
 
 export const handlers = [
+  ...profileHandlers,
   ...authHandlers,
   ...signupHandlers,
   ...passwordHandlers,
