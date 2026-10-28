@@ -17,6 +17,7 @@ import HomePage from "@/features/home/HomePage"
 import OnboardingWizard from "@/features/vendor-onboarding/OnboardingWizard"
 import OnboardingResume from "@/features/vendor-onboarding/OnboardingResume"
 import SearchPage from "@/features/search/SearchPage"
+import VendorProfilePage from "@/features/profile/VendorProfilePage"
 const s = (title) => <Stub title={title} />
 
 export const router = createBrowserRouter([
@@ -27,7 +28,7 @@ export const router = createBrowserRouter([
     children: [
       { path: "/", element: <HomePage /> },
       { path: "/search", element: <SearchPage /> },
-      { path: "/p/:slug", element: s("Public vendor profile") },
+      { path: "/p/:slug", element: <VendorProfilePage /> },
       { path: "/login", element: <LoginPage /> },
       { path: "/signup", element: <SignupPage /> },
       { path: "/vendor-policy", element: s("Vendor Policy and Guidelines") },
