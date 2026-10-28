@@ -55,13 +55,9 @@ export default function VendorProfilePage() {
   if (isError || !vendor) {
     return (
       <div role="alert" className="mx-auto max-w-md space-y-2 p-6 text-sm">
-<<<<<<< HEAD
         <p className="text-destructive">
           We couldn&apos;t load this profile. Check your connection.
         </p>
-=======
-        <p className="text-destructive">We couldn&apos;t load this profile. Check your connection.</p>
->>>>>>> origin/feat/asan-d17-vendor-profile
         <Button type="button" variant="outline" size="sm" onClick={() => refetch()}>
           Try again
         </Button>
