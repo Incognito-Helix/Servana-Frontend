@@ -21,5 +21,10 @@ export const parseStep = (value) => {
 
 export const resumePath = (profile) => {
   const number = currentStepOf(profile)
-  return number > TOTAL_STEPS ? REVIEW_PATH : stepPath(number)
+
+  if (number > TOTAL_STEPS) {
+    return profile?.ninVerification?.status === "passed" ? REVIEW_PATH : stepPath(TOTAL_STEPS)
+  }
+
+  return stepPath(number)
 }

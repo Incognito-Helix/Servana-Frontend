@@ -18,7 +18,21 @@ describe("onboarding steps", () => {
     expect(resumePath({ onboarding_step: 4 })).toBe("/vendor/onboarding/4")
   })
 
-  it("resumes at the review card once all six steps are saved", () => {
-    expect(resumePath({ onboarding_step: 7 })).toBe(REVIEW_PATH)
+  it("resumes at the review card once all six steps are saved and NIN is passed", () => {
+    expect(
+      resumePath({
+        onboarding_step: 7,
+        ninVerification: { status: "passed" },
+      }),
+    ).toBe(REVIEW_PATH)
+  })
+
+  it("returns to NIN verification when all steps are saved but NIN is not passed", () => {
+    expect(
+      resumePath({
+        onboarding_step: 7,
+        ninVerification: { status: "failed" },
+      }),
+    ).toBe("/vendor/onboarding/6")
   })
 })
