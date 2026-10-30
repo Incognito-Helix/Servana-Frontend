@@ -45,10 +45,12 @@ const withDemoData = (v) => {
 
 export const profileHandlers = [
   http.get(`${API}/vendors/:slug`, async ({ params }) => {
+    if (params.slug === "profile") return
+
     await delay(300)
     const vendor = vendors.find((v) => v.slug === params.slug || v.id === params.slug)
     if (!vendor) return fail(404, "NOT_FOUND", "Vendor not found.")
-    // Phone and WhatsApp numbers are never sent in a profile (PRD 6.2).
+
     const safe = withDemoData(vendor)
     return ok(safe)
   }),

@@ -1,9 +1,9 @@
 import BusinessInfoStep from "./BusinessInfoStep"
 import ContactStep from "./ContactStep"
-import PlaceholderStep from "./PlaceholderStep"
 import LocationStep from "./LocationStep"
 import ServicesStep from "./ServicesStep"
 import PhotosStep from "./PhotosStep"
+import NinStep from "./NinStep"
 
 // D10 replaces 3, and so on.
 export const STEP_COMPONENTS = {
@@ -12,5 +12,5 @@ export const STEP_COMPONENTS = {
   3: LocationStep,
   4: ServicesStep,
   5: PhotosStep,
-  6: PlaceholderStep,
+  6: NinStep,
 }

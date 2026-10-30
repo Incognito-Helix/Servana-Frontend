@@ -3,6 +3,7 @@ import { ok, fail } from "./respond"
 import { users, getSessionUser } from "./auth.handlers"
 import { stepSavers, stepValidators } from "./vendor.validators"
 import { hasActiveBoost } from "./boosts.handlers"
+import { settleNin } from "./nin.rules"
 
 const API = import.meta.env.VITE_API_URL
 const STORAGE_KEY = "servana_mock_vendor_profiles"
@@ -18,6 +19,8 @@ const PROTECTED = [
   "onboarding_step",
   "hasActiveBoost",
   "cooldownOverride",
+  "ninVerification",
+  "ninAttempts",
 ]
 const view = (profile) => ({ ...profile, hasActiveBoost: hasActiveBoost(profile.userId) })
 
@@ -73,6 +76,7 @@ export const vendorHandlers = [
     if (error) return error
     const profiles = load()
     const profile = profileFor(profiles, user)
+    settleNin(profile)
     save(profiles)
     return ok(view(profile))
   }),
@@ -89,6 +93,8 @@ export const vendorHandlers = [
     }
     const profiles = load()
     const profile = profileFor(profiles, user)
+    settleNin(profile)
+
     if (step > profile.onboarding_step) {
       return fail(409, "STEP_LOCKED", "Finish the earlier steps first.")
     }

@@ -7,6 +7,7 @@ import { boostHandlers } from "./boosts.handlers"
 import { feedHandlers } from "./feed.handlers"
 import { uploadHandlers } from "./uploads.handlers"
 import { profileHandlers } from "./profile.handlers"
+import { ninHandlers } from "./nin.handlers"
 
 export const handlers = [
   ...profileHandlers,
@@ -16,6 +17,7 @@ export const handlers = [
   ...dataHandlers,
   ...vendorHandlers,
   ...uploadHandlers,
+  ...ninHandlers,
   ...boostHandlers,
   ...feedHandlers,
 ]
