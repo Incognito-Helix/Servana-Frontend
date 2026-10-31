@@ -1,10 +1,11 @@
 import { MapPin, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLocationStore } from "@/store/locationStore"
+import { useEffectiveLocation } from "./useEffectiveLocation"
 import { zoneLabel } from "./recent"
 
 export default function LocationChip() {
-  const location = useLocationStore((s) => s.location)
+  const { location, isDefault } = useEffectiveLocation()
   const openPicker = useLocationStore((s) => s.openPicker)
 
   return (
@@ -15,7 +16,9 @@ export default function LocationChip() {
       onClick={openPicker}
       aria-haspopup="dialog"
       aria-label={
-        location ? `Location: ${zoneLabel(location)}. Change location` : "Set your location"
+        location
+          ? `Area: ${zoneLabel(location)}${isDefault ? " (suggested)" : ""}. Change area`
+          : "Set your area"
       }
     >
       <MapPin aria-hidden />

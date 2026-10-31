@@ -19,6 +19,15 @@ vi.mock("@/features/location/useZoneSuggestions", () => ({
   useZoneSuggestions: () => ({ data: [{ id: "lekki", name: "Lekki" }] }),
 }))
 vi.mock("@/features/location/usePickLocation", () => ({ usePickLocation: () => vi.fn() }))
+vi.mock("@/features/location/useEffectiveLocation", async () => {
+  const { useLocationStore } = await import("@/store/locationStore")
+  return {
+    useEffectiveLocation: () => ({
+      location: useLocationStore.getState().location,
+      isDefault: false,
+    }),
+  }
+})
 
 const show = (url) =>
   render(
