@@ -8,6 +8,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { useEffectiveLocation } from "@/features/location/useEffectiveLocation"
 import { useLocationStore } from "@/store/locationStore"
 import { useDebounce } from "@/features/location/useDebounce"
 import { useMediaQuery } from "@/features/location/useMediaQuery"
@@ -25,7 +26,8 @@ const NO_ZONES = []
 
 export default function SearchPage() {
   const [params, setParams] = useSearchParams()
-  const location = useLocationStore((s) => s.location)
+  const chosen = useLocationStore((s) => s.location) // what the person picked
+  const { location } = useEffectiveLocation() // the pick, or the suggested default
   const openPicker = useLocationStore((s) => s.openPicker)
   const pickLocation = usePickLocation()
   const isDesktop = useMediaQuery("(min-width: 768px)")
@@ -61,9 +63,9 @@ export default function SearchPage() {
   }, [debounced, params, setParams])
 
   // Picking a new area from the header chip updates ?zone=.
-  const previousLocationId = useRef(location?.id)
+  const previousLocationId = useRef(chosen?.id)
   useEffect(() => {
-    const id = location?.id
+    const id = chosen?.id
     if (!id || id === previousLocationId.current) return
     previousLocationId.current = id
     setParams(
@@ -74,7 +76,7 @@ export default function SearchPage() {
       },
       { replace: true },
     )
-  }, [location?.id, setParams])
+  }, [chosen?.id, setParams])
 
   // Filter changes add a history entry, so the Back button undoes them.
   const apply = (values) => setParams((prev) => applyFilters(prev, values))

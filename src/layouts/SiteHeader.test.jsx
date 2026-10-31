@@ -7,7 +7,7 @@ import { useAuthStore } from "@/store/authStore"
 const show = () =>
   render(
     <MemoryRouter>
-      <SiteHeader />
+      <SiteHeader showLocation={false} />
     </MemoryRouter>,
   )
 

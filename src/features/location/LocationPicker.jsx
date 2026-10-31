@@ -99,17 +99,14 @@ function PickerBody({ onPick, forced }) {
 
 export default function LocationPicker() {
   const open = useLocationStore((s) => s.pickerOpen)
-  const location = useLocationStore((s) => s.location)
   const openPicker = useLocationStore((s) => s.openPicker)
   const closePicker = useLocationStore((s) => s.closePicker)
   const setLocation = useLocationStore((s) => s.setLocation)
   const user = useAuthStore((s) => s.user)
-  const status = useAuthStore((s) => s.status)
   const isCustomer = user?.role === "customer"
   const queryClient = useQueryClient()
 
-  // A logged-in customer must have a location. Visitors can browse without one.
-  const forced = status === "authenticated" && isCustomer && !location
+  const forced = false // Team decision (Oct 28): location is optional for customers
 
   useEffect(() => {
     if (forced) openPicker()
